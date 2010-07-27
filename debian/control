@@ -1,0 +1,19 @@
+Source: vfand
+Section: utils
+Priority: optional
+Homepage: http://furi-ku.org/+/cgit/code/vfand
+Maintainer: Adrian Perez <aperez@igalia.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.4
+
+Package: vfand
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Control daemon for Sony Vaio laptop fans.
+ This daemon will control the speed of the fan in a Vaio laptop
+ depending on the temperature reported by the machine sensors.
+ .
+ In general using the embedded controller will suffice, but in
+ some cases (e.g. overheating, noisy operation) you may want
+ to control the fan with this.
+
