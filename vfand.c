@@ -222,13 +222,7 @@ main (int argc, char **argv)
         }
     }
 
-    c = O_RDWR;
-
-#ifdef O_CLOEXEC
-    c |= O_CLOEXEC;
-#endif /* O_CLOEXEC */
-
-    if ((sonypi_fd = open (sonypi_path, c, 0)) == -1) {
+    if ((sonypi_fd = open (sonypi_path, O_RDWR, 0)) == -1) {
         fprintf (stderr, "%s: cannot open '%s': %s\n", argv[0],
                  sonypi_path, strerror(errno));
         exit (EXIT_FAILURE);
