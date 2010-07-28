@@ -215,7 +215,7 @@ main (int argc, char **argv)
 				break;
 			case '?':
 			case 'h':
-				fprintf (stdout, _vfand_help_message, argv[0]);
+				printf (_vfand_help_message, argv[0]);
 				exit (EXIT_SUCCESS);
 			default:
 				fprintf (stderr, "%s: unrecognized option '-%c'\n", argv[0], c);
