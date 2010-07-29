@@ -31,11 +31,11 @@
 #endif /* !POLL_INTERVAL */
 
 #ifndef  TEMP_HIGH
-# define TEMP_HIGH 55
+# define TEMP_HIGH 50
 #endif /* !TEMP_HIGH */
 
 #ifndef  TEMP_LOW
-# define TEMP_LOW 35
+# define TEMP_LOW 30
 #endif /* !TEMP_LOW */
 
 #ifdef FANSPEED_MIN
