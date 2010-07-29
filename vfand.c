@@ -102,6 +102,7 @@ report_data (unsigned temp_low,
 
     printf ("temp %3u C, speed %3u, new speed %3u\n",
             temp_cur, speed_cur, speed_new);
+    fflush (stdout);
 }
 
 
