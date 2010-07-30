@@ -44,17 +44,22 @@ The daemon accepts a number of command line options:
 
 -d DEVICE   Path to device (default: /dev/sonypi). In general you should
             never chenge this, unless you have a very strange setup.
+
 -i SECONDS  Polling interval, in seconds (default: 2). This is the amount
             of time to wait before two consecutive fan adjustments. If you
             set this too high, your machine could overheat.
+
 -H DEGREES  Temperature considered *high* (default: 55). When the
             temperature is above this value, the fan will be driven to full
             speed.
+
 -L DEGREES  Temperature considered *low* (default: 35). When the temperature
             falls below this value, the fan will be kept at the minimum
             possible speed.
+
 -v          Print informational messages containing temperature, old speed
             and new ones each time the speed is readjusted.
+
 -h, -?      Show a help text and exit
 
 
