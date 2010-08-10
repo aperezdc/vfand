@@ -8,25 +8,29 @@ DESTDIR ?=
 prefix  ?= /usr/local
 
 
-all: vfand
+all: vfand vfand-temperature
 
 vfand: sonypi.o vfand.o
+vfand-temperature: sonypi.o vfand-temperature.o
 
-man: vfand.8
+man: vfand.8 vfand-temperature.8
 
-vfand.8: vfand.rst
+%.8: %.rst
 	rst2man $< $@
 
+
 clean:
-	$(RM) vfand.o sonypi.o
-	$(RM) vfand
+	$(RM) vfand.o vfand-temperature.o sonypi.o
+	$(RM) vfand vfand-temperature
 
 
 install:
 	install -d $(DESTDIR)$(prefix)/share/man/man8
-	install -m 644 vfand.8 $(DESTDIR)$(prefix)/share/man/man8
+	install -m 644 vfand.8 vfand-temperature.8 \
+		$(DESTDIR)$(prefix)/share/man/man8
 	install -d $(DESTDIR)$(prefix)/bin
-	install -m 755 vfand $(DESTDIR)$(prefix)/bin
+	install -m 755 vfand vfand-temperature \
+		$(DESTDIR)$(prefix)/bin
 
 
 .PHONY: man install

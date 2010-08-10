@@ -1,4 +1,5 @@
 vfand
+vfand-temperature
 *.o
 .*.sw[op]
 debian/files

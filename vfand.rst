@@ -96,7 +96,7 @@ SEE ALSO
 ========
 
 `supervise(8)`, `runsv(8)`, `start-stop-daemon(8)`, `inittab(5)`,
-`rotlog(8)`
+`rotlog(8)`, `vfand-temperature(8)`
 
 http://cr.yp.to/daemontools.html, http://furi-ku.org/+/cgit/code/rotlog
 
