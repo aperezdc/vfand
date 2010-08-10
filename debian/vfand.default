@@ -1,0 +1,6 @@
+#
+# Additional arguments to pass to the daemon.
+# See vfand(8) for available options.
+#
+#DAEMON_ARGS="-i 5"
+

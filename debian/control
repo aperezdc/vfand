@@ -9,6 +9,7 @@ Standards-Version: 3.8.4
 Package: vfand
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: dmon
 Description: Control daemon for Sony Vaio laptop fans.
  This daemon will control the speed of the fan in a Vaio laptop
  depending on the temperature reported by the machine sensors.
