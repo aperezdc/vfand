@@ -5,26 +5,14 @@
  * Distributed under terms of the MIT license.
  */
 
-#include <linux/types.h>
-#include <sys/ioctl.h>
+#include "sonypi.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
-#include <fcntl.h>
 
-
-/* Our own ioctl definitions: ease compilation */
-#define SONYPI_IOCGFAN  _IOR('v', 10, __u8)
-#define SONYPI_IOCSFAN  _IOW('v', 11, __u8)
-#define SONYPI_IOCGTEMP _IOR('v', 12, __u8)
-
-
-#ifndef  SONYPI_PATH
-# define SONYPI_PATH "/dev/sonypi"
-#endif /* !SONYPI_PATH */
 
 #ifndef  POLL_INTERVAL
 # define POLL_INTERVAL 2
@@ -37,18 +25,6 @@
 #ifndef  TEMP_LOW
 # define TEMP_LOW 30
 #endif /* !TEMP_LOW */
-
-#ifdef FANSPEED_MIN
-# warning Manually setting FANSPEED_MIN may harm your computer
-#else
-# define FANSPEED_MIN 0
-#endif /* FANSPEED_MIN */
-
-#ifdef FANSPEED_MAX
-# warning Manually setting FANSPEED_MAX may harm your computer
-#else
-# define FANSPEED_MAX 255
-#endif /* FANSPEED_MAX */
 
 /* Ugly... */
 #define S__(x) #x
@@ -146,48 +122,6 @@ fanspeed_calculate (unsigned temp_low,
 }
 
 
-
-void
-sonypi_fanspeed_set (int fd, unsigned value)
-{
-    __u8 value8;
-
-    if (value >= FANSPEED_MAX)
-        value = FANSPEED_MAX;
-    if (value <= FANSPEED_MIN)
-        value = FANSPEED_MIN;
-
-    value8 = (__u8) value;
-
-    if (ioctl (fd, SONYPI_IOCSFAN, &value8) < 0) {
-        fprintf (stderr, "ioctl: %s\n", strerror (errno));
-    }
-}
-
-
-unsigned
-sonypi_fanspeed_get (int fd)
-{
-    __u8 value;
-    if (ioctl (fd, SONYPI_IOCGFAN, &value) < 0) {
-        fprintf (stderr, "ioctl: %s\n", strerror (errno));
-    }
-    return (unsigned) value;
-}
-
-
-unsigned
-sonypi_temperature_get (int fd)
-{
-    __u8 value;
-    if (ioctl (fd, SONYPI_IOCGTEMP, &value) < 0) {
-        fprintf (stderr, "ioctl: %s\n", strerror (errno));
-    }
-    return (unsigned) value;
-}
-
-
-
 int
 main (int argc, char **argv)
 {
@@ -223,7 +157,7 @@ main (int argc, char **argv)
         }
     }
 
-    if ((sonypi_fd = open (sonypi_path, O_RDWR, 0)) == -1) {
+    if ((sonypi_fd = sonypi_open_device (sonypi_path)) == -1) {
         fprintf (stderr, "%s: cannot open '%s': %s\n", argv[0],
                  sonypi_path, strerror(errno));
         exit (EXIT_FAILURE);
@@ -235,8 +169,8 @@ main (int argc, char **argv)
                              fanspeed_calculate (temp_low,
                                                  temp_high,
                                                  sonypi_temperature_get (sonypi_fd),
-                                                 FANSPEED_MIN,
-                                                 FANSPEED_MAX,
+                                                 SONYPI_FANSPEED_MIN,
+                                                 SONYPI_FANSPEED_MAX,
                                                  sonypi_fanspeed_get (sonypi_fd)));
 
         /* Wait */
@@ -247,7 +181,7 @@ main (int argc, char **argv)
     }
 
     if (sonypi_fd != -1) {
-        close (sonypi_fd);
+        sonypi_close (sonypi_fd);
     }
 
     exit (EXIT_SUCCESS);

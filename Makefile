@@ -10,7 +10,7 @@ prefix  ?= /usr/local
 
 all: vfand
 
-vfand: vfand.o
+vfand: sonypi.o vfand.o
 
 man: vfand.8
 
@@ -18,7 +18,8 @@ vfand.8: vfand.rst
 	rst2man $< $@
 
 clean:
-	$(RM) vfand.o vfand
+	$(RM) vfand.o sonypi.o
+	$(RM) vfand
 
 
 install:
