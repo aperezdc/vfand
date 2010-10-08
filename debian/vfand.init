@@ -28,7 +28,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 [ -x /usr/bin/dmon ] || exit 0
-[ -x /usr/bin/dsyslog ] || exit 0
+[ -x /usr/bin/dslog ] || exit 0
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
@@ -50,7 +50,7 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	/usr/bin/dmon -e -p "$PIDFILE" /usr/bin/vfand -- /usr/bin/dsyslog vfand \
+	/usr/bin/dmon -e -p "$PIDFILE" /usr/bin/vfand -- /usr/bin/dslog vfand \
 		|| return 1
 }
 
