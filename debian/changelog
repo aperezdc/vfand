@@ -1,3 +1,9 @@
+vfand (0.1.3-2) stable; urgency=low
+
+  * Init script was not honoring DAEMON_ARGS, it does now.
+
+ -- Adrian Perez <aperez@igalia.com>  Thu, 14 Oct 2010 13:41:46 +0300
+
 vfand (0.1.3-1) stable; urgency=low
 
   * Make package depend on dmon 0.3.3, so we make sure the init script because
