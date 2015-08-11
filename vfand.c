@@ -5,8 +5,6 @@
  * Distributed under terms of the MIT license.
  */
 
-#define _POSIX_C_SOURCE 2
-
 #include "vfand.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -153,20 +151,8 @@ main (int argc, char **argv)
         }
     }
 
-    vfand_access_t *vfand = vfand_get_sonypi ();
-    if (!vfand) {
-        fprintf (stderr, "%s: cannot open 'sonypi' device: %s\n", argv[0],
-                 strerror(errno));
-        if ((vfand = vfand_get_sysfs ()) == NULL) {
-            fprintf (stderr, "%s: cannot open 'sysfs': %s\n", argv[0],
-                     strerror (errno));
-            exit (EXIT_FAILURE);
-        } else {
-            fprintf (stderr, "%s: using 'sysfs' for fan control\n", argv[0]);
-        }
-    } else {
-        fprintf (stderr, "%s: using 'sonypi' device for fan control\n", argv[0]);
-    }
+    vfand_access_t *vfand = vfand_get_access (argv[0]);
+    if (!vfand) exit (EXIT_FAILURE);
 
     while (interval > 0) {
         int temperature = vfand_get_temperature (vfand);

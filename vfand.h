@@ -48,4 +48,32 @@ extern vfand_access_t* vfand_get_sonypi (void);
 extern vfand_access_t* vfand_get_sysfs (void);
 
 
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+
+
+static inline vfand_access_t*
+vfand_get_access (const char *errprefix)
+{
+    vfand_access_t *vfand = vfand_get_sonypi ();
+    if (vfand) {
+        fprintf (stderr, "%s: using 'sonypi'\n", errprefix);
+        return vfand;
+    }
+
+    fprintf (stderr, "%s: cannot open 'sonypi': %s\n",
+             errprefix, strerror(errno));
+
+    if ((vfand = vfand_get_sysfs ())) {
+        fprintf (stderr, "%s: using 'sysfs'\n", errprefix);
+        return vfand;
+    }
+
+    fprintf (stderr, "%s: cannot open 'sysfs': %s\n",
+             errprefix, strerror (errno));
+    return NULL;
+}
+
 #endif /* !VFAND_H */

@@ -14,9 +14,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <string.h>
-#include <errno.h>
-#include <stdio.h>
 
 #ifndef SONYPI_PATH
 #define SONYPI_PATH "/dev/sonypi"

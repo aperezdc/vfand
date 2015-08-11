@@ -5,13 +5,9 @@
  * Distributed under terms of the MIT license.
  */
 
-#define _POSIX_C_SOURCE 2
 #include "vfand.h"
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
 
 
 #ifndef REPORT_INTERVAL
@@ -66,12 +62,8 @@ main (int argc, char **argv)
     }
 
 
-    vfand_access_t* vfand = vfand_get_sonypi ();
-    if (!vfand) {
-        fprintf (stderr, "%s: cannot open 'sonypi': %s\n", argv[0],
-                 strerror(errno));
-        exit (EXIT_FAILURE);
-    }
+    vfand_access_t* vfand = vfand_get_access (argv[0]);
+    if (!vfand) exit (EXIT_FAILURE);
 
     do {
         int temperature = vfand_get_temperature (vfand);
