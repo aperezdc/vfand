@@ -10,8 +10,8 @@ prefix  ?= /usr/local
 
 all: vfand vfand-temperature
 
-vfand: sonypi.o vfand.o
-vfand-temperature: sonypi.o vfand-temperature.o
+vfand: sonypi.o sysfs.o vfand.o
+vfand-temperature: sonypi.o sysfs.o vfand-temperature.o
 
 man: vfand.8 vfand-temperature.8
 
@@ -20,7 +20,7 @@ man: vfand.8 vfand-temperature.8
 
 
 clean:
-	$(RM) vfand.o vfand-temperature.o sonypi.o
+	$(RM) vfand.o vfand-temperature.o sonypi.o sysfs.o
 	$(RM) vfand vfand-temperature
 
 

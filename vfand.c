@@ -5,6 +5,8 @@
  * Distributed under terms of the MIT license.
  */
 
+#define _POSIX_C_SOURCE 2
+
 #include "vfand.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -126,7 +128,7 @@ main (int argc, char **argv)
     unsigned remain;
     int c;
 
-    while ((c = getopt (argc, argv, "?hv:i:H:L:")) != -1) {
+    while ((c = getopt (argc, argv, "?hvi:H:L:")) != -1) {
         switch (c) {
             case 'v':
                 verbose = 1;
