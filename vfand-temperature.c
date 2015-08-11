@@ -1,11 +1,12 @@
 /*
  * vfand-temperature.c
- * Copyright (C) 2010 Adrian Perez <aperez@igalia.com>
+ * Copyright (C) 2010-2015 Adrian Perez <aperez@igalia.com>
  *
  * Distributed under terms of the MIT license.
  */
 
-#include "sonypi.h"
+#define _POSIX_C_SOURCE 2
+#include "vfand.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,16 +22,13 @@
 #define S__(x) #x
 #define S_(y) S__(y)
 
-static int         sonypi_fd    = -1;
-static const char *sonypi_path  = SONYPI_PATH;
-static unsigned    interval     = REPORT_INTERVAL;
+static unsigned interval = REPORT_INTERVAL;
 
 
 #define _vfand_temperature_help_message \
 	"Usage: %s [options]\n" \
 	"Report system temperature as used by vfand for fan adjustment.\n" \
 	"\n" \
-	"  -d DEVICE   Path to device (default: " SONYPI_PATH ")\n" \
 	"  -i SECONDS  Reporting interval, in seconds (default: " S_(REPORT_INTERVAL) ")\n" \
 	"  -h, -?      Show this help text.\n" \
 	"\n"
@@ -49,14 +47,10 @@ int
 main (int argc, char **argv)
 {
     char *endpos;
-    unsigned remain;
     int c;
 
-    while ((c = getopt (argc, argv, "?hd:i:")) != -1) {
+    while ((c = getopt (argc, argv, "?h:i:")) != -1) {
         switch (c) {
-            case 'd':
-                sonypi_path = optarg;
-                break;
             case 'i':
                 _unsigned_arg (interval);
                 break;
@@ -71,27 +65,30 @@ main (int argc, char **argv)
         }
     }
 
-    if ((sonypi_fd = sonypi_open_device (sonypi_path)) == -1) {
-        fprintf (stderr, "%s: cannot open '%s': %s\n", argv[0],
-                 sonypi_path, strerror(errno));
+
+    vfand_access_t* vfand = vfand_get_sonypi ();
+    if (!vfand) {
+        fprintf (stderr, "%s: cannot open 'sonypi': %s\n", argv[0],
+                 strerror(errno));
         exit (EXIT_FAILURE);
     }
 
     do {
-        printf ("%u\n", sonypi_temperature_get (sonypi_fd));
-        fflush (stdout);
+        int temperature = vfand_get_temperature (vfand);
+        if (temperature >= 0) {
+            printf ("%i\n", temperature);
+            fflush (stdout);
+        }
 
         /* Wait */
-        remain = interval;
+        unsigned remain = interval;
         do {
             remain = sleep (remain);
         } while (remain > 0 && errno == EINTR);
     } while (interval);
 
-    if (sonypi_fd != -1) {
-        sonypi_close (sonypi_fd);
-    }
 
+    vfand_destroy (vfand);
     exit (EXIT_SUCCESS);
 }
 

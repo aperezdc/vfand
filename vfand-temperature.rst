@@ -30,9 +30,6 @@ USAGE
 
 The daemon accepts a number of command line options:
 
--d DEVICE   Path to device (default: ``/dev/sonypi``). In general you should
-            never chenge this, unless you have a very strange setup.
-
 -i SECONDS  Reporting interval, in seconds (default: 0). This is the amount
             of time to wait before reporting the temperatyre. When zero, the
             temperature will be reported only once, otherwise the tool will
@@ -44,8 +41,7 @@ The daemon accepts a number of command line options:
 FILES
 =====
 
-This program uses the ``/dev/sonypi`` character device. Any other compatible
-device which supports the ``SONYPI_IOCGTEMP`` `ioctl(2)` will work:
+This program uses the ``/dev/sonypi`` character device.
 
 
 SEE ALSO

@@ -1,11 +1,11 @@
 /*
  * vfand.c
- * Copyright (C) 2010 Adrian Perez <aperez@igalia.com>
+ * Copyright (C) 2010-2015 Adrian Perez <aperez@igalia.com>
  *
  * Distributed under terms of the MIT license.
  */
 
-#include "sonypi.h"
+#include "vfand.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -32,8 +32,6 @@
 
 
 static int         verbose      = 0;
-static int         sonypi_fd    = -1;
-static const char *sonypi_path  = SONYPI_PATH;
 static unsigned    interval     = POLL_INTERVAL;
 static unsigned    temp_high    = TEMP_HIGH;
 static unsigned    temp_low     = TEMP_LOW;
@@ -43,7 +41,6 @@ static unsigned    temp_low     = TEMP_LOW;
 	"Usage: %s [options]\n" \
 	"Control fan depending on system temperature on Vaio laptops.\n" \
 	"\n" \
-	"  -d DEVICE   Path to device (default: " SONYPI_PATH ")\n" \
 	"  -i SECONDS  Polling interval, in seconds (default: " S_(POLL_INTERVAL) ")\n" \
 	"  -H DEGREES  Temperature considered \"high\" (default: " S_(TEMP_HIGH) ")\n" \
 	"  -L DEGREES  Temperature considered \"low\" (default: " S_(TEMP_LOW) ")\n" \
@@ -129,13 +126,10 @@ main (int argc, char **argv)
     unsigned remain;
     int c;
 
-    while ((c = getopt (argc, argv, "?hvd:i:H:L:")) != -1) {
+    while ((c = getopt (argc, argv, "?hv:i:H:L:")) != -1) {
         switch (c) {
             case 'v':
                 verbose = 1;
-                break;
-            case 'd':
-                sonypi_path = optarg;
                 break;
             case 'i':
                 _unsigned_arg (interval);
@@ -157,21 +151,27 @@ main (int argc, char **argv)
         }
     }
 
-    if ((sonypi_fd = sonypi_open_device (sonypi_path)) == -1) {
-        fprintf (stderr, "%s: cannot open '%s': %s\n", argv[0],
-                 sonypi_path, strerror(errno));
+    vfand_access_t *vfand = vfand_get_sonypi ();
+    if (!vfand) {
+        fprintf (stderr, "%s: cannot open 'sonypi' device: %s\n", argv[0],
+                 strerror(errno));
         exit (EXIT_FAILURE);
     }
 
     while (interval > 0) {
-        /* Adjust */
-        sonypi_fanspeed_set (sonypi_fd,
-                             fanspeed_calculate (temp_low,
-                                                 temp_high,
-                                                 sonypi_temperature_get (sonypi_fd),
-                                                 SONYPI_FANSPEED_MIN,
-                                                 SONYPI_FANSPEED_MAX,
-                                                 sonypi_fanspeed_get (sonypi_fd)));
+        int temperature = vfand_get_temperature (vfand);
+        int fan_speed   = vfand_get_fan_speed   (vfand);
+
+        if (temperature >= 0 && fan_speed >= 0) {
+            /* Adjust */
+            vfand_set_fan_speed (vfand,
+                                 fanspeed_calculate (temp_low,
+                                                     temp_high,
+                                                     (unsigned) temperature,
+                                                     MIN_FAN_SPEED,
+                                                     MAX_FAN_SPEED,
+                                                     fan_speed));
+        }
 
         /* Wait */
         remain = interval;
@@ -180,10 +180,7 @@ main (int argc, char **argv)
         } while (remain > 0 && errno == EINTR);
     }
 
-    if (sonypi_fd != -1) {
-        sonypi_close (sonypi_fd);
-    }
-
+    vfand_destroy (vfand);
     exit (EXIT_SUCCESS);
 }
 

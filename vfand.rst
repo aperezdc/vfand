@@ -42,9 +42,6 @@ USAGE
 
 The daemon accepts a number of command line options:
 
--d DEVICE   Path to device (default: /dev/sonypi). In general you should
-            never chenge this, unless you have a very strange setup.
-
 -i SECONDS  Polling interval, in seconds (default: 2). This is the amount
             of time to wait before two consecutive fan adjustments. If you
             set this too high, your machine could overheat.
@@ -84,12 +81,7 @@ aforementioned companion tools are better suited for that tasks.
 FILES
 =====
 
-This program uses the ``/dev/sonypi`` character device. Any other compatible
-device which supports the following `ioctl(2)` will work:
-
-* ``SONYPI_IOCGFAN``
-* ``SONYPI_IOCSFAN``
-* ``SONYPI_IOCGTEMP``
+This program uses the ``/dev/sonypi`` character device.
 
 
 SEE ALSO
@@ -99,7 +91,3 @@ SEE ALSO
 `rotlog(8)`, `vfand-temperature(8)`
 
 http://cr.yp.to/daemontools.html, http://furi-ku.org/+/cgit/code/rotlog
-
-
-
-

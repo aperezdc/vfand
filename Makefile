@@ -3,7 +3,7 @@
 # Adrian Perez, 2010-07-27 17:39
 #
 
-CFLAGS  ?= -O0 -g -Wall -W
+CFLAGS  ?= -O0 -g -Wall -W -std=c99
 DESTDIR ?=
 prefix  ?= /usr/local
 

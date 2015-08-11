@@ -1,22 +1,26 @@
 /*
  * sonypi.c
- * Copyright (C) 2010 Adrian Perez <aperez@igalia.com>
+ * Copyright (C) 2010-2015 Adrian Perez <aperez@igalia.com>
  *
  * Distributed under terms of the MIT license.
  */
 
-#include "sonypi.h"
+#include "vfand.h"
+#include <assert.h>
 #include <linux/types.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <assert.h>
+#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
 
+#ifndef SONYPI_PATH
+#define SONYPI_PATH "/dev/sonypi"
+#endif /* !SONYPI_PATH */
 
 /* Our own ioctl definitions: ease compilation */
 #define SONYPI_IOCGFAN  _IOR('v', 10, __u8)
@@ -24,63 +28,92 @@
 #define SONYPI_IOCGTEMP _IOR('v', 12, __u8)
 
 
+static int sonypi_fd = -1;
+
+
+static void
+sonypi_destroy (vfand_access_t *access)
+{
+    (void) access; /* unused */
+
+    assert (access);
+    assert (sonypi_fd >= 0);
+
+    close (sonypi_fd);
+}
+
+
 int
-sonypi_open_device (const char *path)
+sonypi_get_temperature (vfand_access_t *access)
 {
-    if (path == NULL)
-        path = SONYPI_PATH;
+    (void) access; /* unused */
 
-    return open (path, O_RDWR, 0);
+    assert (access);
+    assert (sonypi_fd >= 0);
+
+    __u8 value;
+    if (ioctl (sonypi_fd, SONYPI_IOCGTEMP, &value) < 0) {
+        int err = errno;
+        fprintf (stderr, "ioctl: %s\n", strerror (err));
+        return -err;
+    }
+    return (int) value;
+}
+
+
+int
+sonypi_get_fan_speed (vfand_access_t *access)
+{
+    (void) access; /* unused */
+
+    assert (access);
+    assert (sonypi_fd >= 0);
+
+    __u8 value;
+    if (ioctl (sonypi_fd, SONYPI_IOCGFAN, &value) < 0) {
+        int err = errno;
+        fprintf (stderr, "ioctl: %s\n", strerror (err));
+        return -err;
+    }
+    return (int) value;
 }
 
 
 void
-sonypi_close (int fd)
+sonypi_set_fan_speed (vfand_access_t *access, int value)
 {
-    assert (fd > -1);
-    close (fd);
-}
+    (void) access; /* unused */
 
+    assert (access);
+    assert (sonypi_fd >= 0);
 
-void
-sonypi_fanspeed_set (int fd, unsigned value)
-{
-    __u8 value8;
+    if (value >= MAX_FAN_SPEED)
+        value = MAX_FAN_SPEED;
+    if (value <= MIN_FAN_SPEED)
+        value = MIN_FAN_SPEED;
 
-    if (value >= SONYPI_FANSPEED_MAX)
-        value = SONYPI_FANSPEED_MAX;
-    if (value <= SONYPI_FANSPEED_MIN)
-        value = SONYPI_FANSPEED_MIN;
-
-    value8 = (__u8) value;
-
-    if (ioctl (fd, SONYPI_IOCSFAN, &value8) < 0) {
+    __u8 value8 = (__u8) value;
+    if (ioctl (sonypi_fd, SONYPI_IOCSFAN, &value8) < 0) {
         fprintf (stderr, "ioctl: %s\n", strerror (errno));
     }
 }
 
 
-unsigned
-sonypi_fanspeed_get (int fd)
+vfand_access_t*
+vfand_get_sonypi (void)
 {
-    __u8 value;
-    if (ioctl (fd, SONYPI_IOCGFAN, &value) < 0) {
-        fprintf (stderr, "ioctl: %s\n", strerror (errno));
+    static vfand_access_t access = {
+        .destroy         = sonypi_destroy,
+        .get_temperature = sonypi_get_temperature,
+        .get_fan_speed   = sonypi_get_fan_speed,
+        .set_fan_speed   = sonypi_set_fan_speed,
+    };
+
+    static bool initialized = false;
+    if (!initialized) {
+        sonypi_fd = open (SONYPI_PATH, O_RDWR, 0);
+        initialized = true;
     }
-    return (unsigned) value;
+
+    return (sonypi_fd >= 0) ? &access : NULL;
 }
-
-
-unsigned
-sonypi_temperature_get (int fd)
-{
-    __u8 value;
-    if (ioctl (fd, SONYPI_IOCGTEMP, &value) < 0) {
-        fprintf (stderr, "ioctl: %s\n", strerror (errno));
-    }
-    return (unsigned) value;
-}
-
-
-/* vim: expandtab tabstop=4 shiftwidth=4
- */
