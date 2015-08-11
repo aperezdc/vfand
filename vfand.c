@@ -157,7 +157,15 @@ main (int argc, char **argv)
     if (!vfand) {
         fprintf (stderr, "%s: cannot open 'sonypi' device: %s\n", argv[0],
                  strerror(errno));
-        exit (EXIT_FAILURE);
+        if ((vfand = vfand_get_sysfs ()) == NULL) {
+            fprintf (stderr, "%s: cannot open 'sysfs': %s\n", argv[0],
+                     strerror (errno));
+            exit (EXIT_FAILURE);
+        } else {
+            fprintf (stderr, "%s: using 'sysfs' for fan control\n", argv[0]);
+        }
+    } else {
+        fprintf (stderr, "%s: using 'sonypi' device for fan control\n", argv[0]);
     }
 
     while (interval > 0) {
